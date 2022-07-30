@@ -5,7 +5,9 @@
   - [EventPattern](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-patterns.html) specify how to match events to targets
   - [GitHub](https://github.com/entest-hai/eventbridge-lambda)
     
-![aws_devops-eventbridge drawio(3)](https://user-images.githubusercontent.com/20411077/181879328-c12698cb-b084-43dc-a26b-d4e92431f74d.png)
+
+![aws_devops-eventbridge drawio(5)](https://user-images.githubusercontent.com/20411077/181879584-5a57206c-c056-484c-b5ba-b801e7864bf1.png)
+
 
 ## Event Format 
 send/put an [event format](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-events.html) by python boto3. Detail field should be a JSON object, that's why json.dumps here, or JSON.stringfy in javascript. 
