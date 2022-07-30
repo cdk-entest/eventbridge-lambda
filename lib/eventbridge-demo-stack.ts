@@ -15,7 +15,7 @@ interface EventBridgeProps extends StackProps {
 }
 
 export class EventbridgeDemoStack extends Stack {
-  constructor(scope: Construct, id: string, props: EventBridgeProps) {
+  constructor(scope: Construct, id: string, props?: EventBridgeProps) {
     super(scope, id, props);
 
     // producer lambda - putEvent iam role
@@ -46,8 +46,9 @@ export class EventbridgeDemoStack extends Stack {
       handler: "consumer.handler",
       runtime: aws_lambda.Runtime.PYTHON_3_8,
       timeout: Duration.seconds(10),
+      // provide a topic arn if want the consumer send sns
       environment: {
-        TOPIC_ARN: props.topicArn,
+        TOPIC_ARN: props ? props.topicArn : "",
       },
     });
 

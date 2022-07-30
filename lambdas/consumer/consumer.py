@@ -14,10 +14,14 @@ def handler(event, context):
     """
     consume event and send sns
     """
-    snsClient.publish(
-        TopicArn=os.environ['TOPIC_ARN'],
-        Message=json.dumps(event)
-    )
+    # if an sns topic arn avaiable
+    if (os.environ['TOPIC_ARN'] != ''):
+        snsClient.publish(
+            TopicArn=os.environ['TOPIC_ARN'],
+            Message=json.dumps(event)
+        )
+    else:
+        pass
     return {
         'message': event
     }
