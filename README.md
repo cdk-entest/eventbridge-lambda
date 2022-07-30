@@ -3,6 +3,10 @@
   - A lambda consumer being trigger by the event rule 
   - The event rule map the events to targets (the lamda consumer)
   - [EventPattern](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-patterns.html) specify how to match events to targets
+  
+  
+  ![aws_devops-eventbridge drawio](https://user-images.githubusercontent.com/20411077/181875385-8b079326-d9a6-4e59-bb92-478b98a29d16.png)
+
 
 send/put an event format in python 
 ```py
