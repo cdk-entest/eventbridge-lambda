@@ -30,7 +30,7 @@ received event format in python
   "account": "ACCOUNT_ID", 
   "time": "2022-07-30T03:22:23Z", 
   "region": "REGION", 
-  "resources": ['arn:aws:lambda...'], 
+  "resources": ["arn:aws:lambda..."], 
   "detail": {"item1": "123", "item2": "456"}
   }
 ```
