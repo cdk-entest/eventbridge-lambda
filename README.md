@@ -1,5 +1,5 @@
 ## EventBridge with Lambda Producer and Consumer 
-  - A lambda procuder sends events to the evnet bus 
+  - A lambda procuder sends events to the event bus 
   - A lambda consumer being trigger by the event rule 
   - The event rule map the events to targets (the lamda consumer)
   - [EventPattern](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-patterns.html) specify how to match events to targets
