@@ -46,13 +46,13 @@ received event format in python
 {
   "version": "0", 
   "id": "9b8aa069-94a8-2283-dcb0-0d3511df4345", 
-  "detail-type": "service_status", 
+  "detail-type": "purchase", 
   "source": "io.entest.demo", 
   "account": "ACCOUNT_ID", 
   "time": "2022-07-30T03:22:23Z", 
   "region": "REGION", 
   "resources": ["arn:aws:lambda..."], 
-  "detail": {"item1": "123"}
+  "detail": {"title": "purchase event"}
   }
 ```
 
