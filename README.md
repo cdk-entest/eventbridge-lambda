@@ -12,24 +12,23 @@
 send/put an [event format](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-events.html) in python. Detail should be a JSON object, that's why json.dumps here, or JSON.stringfy in javascript. 
 ```py
 resp = eventClient.put_events(
-        Entries=[
-            {
-                'Time': datetime.now(),
-                'Source': 'io.entest.demo',
-                'Detail': json.dumps({"title": "order event"}),
-                'DetailType': 'order',
-                'Resources':['arn:aws:lambda...']
-            },
-            {
-                'Time': datetime.now(),
-                'Source': 'io.entest.demo',
-                'Detail': json.dumps({"title": "purchase event"}),
-                'DetailType': 'purchase',
-                'Resources':['arn:aws:lambda...']
-            }
-        ]
-    )
-
+  Entries=[
+    {
+      'Time': datetime.now(),
+      'Source': 'io.entest.demo',
+      'Detail': json.dumps({"title": "order event"}),
+      'DetailType': 'order',
+      'Resources':['arn:aws:lambda...']
+    },
+    {
+      'Time': datetime.now(),
+      'Source': 'io.entest.demo',
+      'Detail': json.dumps({"title": "purchase event"}),
+      'DetailType': 'purchase',
+      'Resources':['arn:aws:lambda...']
+    }
+  ]
+)
 ```
 
 event rule to map purchase-event to process purchase lambda 
@@ -46,19 +45,6 @@ const purchaseRule = new aws_events.Rule(
 
     purchaseRule.addTarget(
       new aws_events_targets.LambdaFunction(processPurchaseLambda.lambda)
-    );
-```
-
-event rule to map order-event to process order lambda 
-```tsx
-const orderRule = new aws_events.Rule(this, "TriggerProcessOrderLambda", {
-      ruleName: "TriggerProcessOrderLambda",
-      description: "",
-      eventPattern: { source: ["io.entest.demo"], detailType: ["order"] },  
-    });
-
-    orderRule.addTarget(
-      new aws_events_targets.LambdaFunction(processOrderLambda.lambda)
     );
 ```
 
@@ -101,7 +87,7 @@ create lambda producer
     );
 ```
 
-create lambda based service: purchase and order. topic arn is optional when you want the lambda to send notification to emails. 
+create lambda based construct for process purchase and order. topic arn is optional when you want the lambda to send notification to emails. 
 ```tsx
 export class LambdaService extends Construct {
   public readonly lambda: aws_lambda.Function;
