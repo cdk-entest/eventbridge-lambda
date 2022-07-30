@@ -20,6 +20,19 @@ resp = eventClient.put_events(
 
 ```
 
+a event rule with below event pattern will mapp all events from io.entests.demo to the consumer lambda.
+```tsx
+const consumerRule = new aws_events.Rule(this, "LambdaConsumerRule", {
+      ruleName: "TriggerLambdaConsumer",
+      description: "",
+      eventPattern: { source: ["io.entest.demo"] },
+    });
+
+    consumerRule.addTarget(
+      new aws_events_targets.LambdaFunction(consumerLambda)
+    );
+```
+
 received event format in python 
 ```json 
 {
