@@ -31,7 +31,7 @@ received event format in python
   "time": "2022-07-30T03:22:23Z", 
   "region": "REGION", 
   "resources": ["arn:aws:lambda..."], 
-  "detail": {"item1": "123", "item2": "456"}
+  "detail": {"item1": "123"}
   }
 ```
 
