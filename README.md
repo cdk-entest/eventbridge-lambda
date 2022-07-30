@@ -5,7 +5,7 @@
   - [EventPattern](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-patterns.html) specify how to match events to targets
   
   
-  ![aws_devops-eventbridge drawio](https://user-images.githubusercontent.com/20411077/181875385-8b079326-d9a6-4e59-bb92-478b98a29d16.png)
+ ![aws_devops-eventbridge drawio(2)](https://user-images.githubusercontent.com/20411077/181878378-fe5c6f7a-cbee-416a-9026-7796b9c9021f.png)
 
 
 ## Event Format 
@@ -16,8 +16,15 @@ resp = eventClient.put_events(
             {
                 'Time': datetime.now(),
                 'Source': 'io.entest.demo',
-                'Detail': json.dumps({"item1": "123"}),
-                'DetailType': 'service_status',
+                'Detail': json.dumps({"title": "order event"}),
+                'DetailType': 'order',
+                'Resources':['arn:aws:lambda...']
+            },
+            {
+                'Time': datetime.now(),
+                'Source': 'io.entest.demo',
+                'Detail': json.dumps({"title": "purchase event"}),
+                'DetailType': 'purchase',
                 'Resources':['arn:aws:lambda...']
             }
         ]
