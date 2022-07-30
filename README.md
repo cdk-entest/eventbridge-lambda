@@ -8,7 +8,8 @@
   ![aws_devops-eventbridge drawio](https://user-images.githubusercontent.com/20411077/181875385-8b079326-d9a6-4e59-bb92-478b98a29d16.png)
 
 
-send/put an event format in python 
+## Event Format 
+send/put an [event format](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-events.html) in python. Detail should be a JSON object, that's why json.dumps({}), or JSON.stringfy in javascript. 
 ```py
 resp = eventClient.put_events(
         Entries=[
@@ -23,6 +24,7 @@ resp = eventClient.put_events(
     )
 
 ```
+
 
 a event rule with below event pattern will map all events from io.entests.demo to the consumer lambda.
 ```tsx
