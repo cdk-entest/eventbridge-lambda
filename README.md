@@ -2,7 +2,37 @@
   - A lambda procuder sends events to the evnet bus 
   - A lambda consumer being trigger by the event rule 
   - The event rule map the events to targets (the lamda consumer)
-  - [EventPattern](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-patterns.html) specify how to match events to targets 
+  - [EventPattern](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-patterns.html) specify how to match events to targets
+
+send/put an event format in python 
+```py
+resp = eventClient.put_events(
+        Entries=[
+            {
+                'Time': datetime.now(),
+                'Source': 'io.entest.demo',
+                'Detail': json.dumps(request_body),
+                'DetailType': 'service_status',
+            }
+        ]
+    )
+
+```
+
+received event format in python 
+```json 
+{
+  "version": "0", 
+  "id": "9b8aa069-94a8-2283-dcb0-0d3511df4345", 
+  "detail-type": "service_status", 
+  "source": "io.entest.demo", 
+  "account": "ACCOUNT_ID", 
+  "time": "2022-07-30T03:22:23Z", 
+  "region": "REGION", 
+  "resources": [], 
+  "detail": {"item1": "123", "item2": "456"}
+  }
+```
 
 ## CDK Stack 
 create lambda producer  
