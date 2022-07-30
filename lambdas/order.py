@@ -6,7 +6,6 @@ import os
 import json
 import boto3
 
-
 snsClient = boto3.client('sns')
 
 
@@ -18,13 +17,12 @@ def handler(event, context):
     if (os.environ['TOPIC_ARN'] != ''):
         snsClient.publish(
             TopicArn=os.environ['TOPIC_ARN'],
-            Message=json.dumps(event)
+            Message=json.dumps({'type': 'order', 'event': event})
         )
     else:
         pass
     return {
         'message': event
     }
-
 
 # handler(event={}, context={})

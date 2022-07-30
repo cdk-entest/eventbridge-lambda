@@ -12,17 +12,21 @@ eventClient = boto3.client('events')
 
 def handler(event, context):
     """
-    send event to enventbridge 
+    send three entries to enventbridge
     """
-    request_body = event['body']
-    print(request_body)
     resp = eventClient.put_events(
         Entries=[
             {
                 'Time': datetime.now(),
                 'Source': 'io.entest.demo',
-                'Detail': json.dumps(request_body),
-                'DetailType': 'service_status',
+                'Detail': json.dumps({'title': 'order event', 'event': event}),
+                'DetailType': 'order',
+            },
+            {
+                'Time': datetime.now(),
+                'Source': 'io.entest.demo',
+                'Detail': json.dumps({'title': 'purchase event', 'event': event}),
+                'DetailType': 'purchase',
             }
         ]
     )
@@ -34,4 +38,4 @@ def handler(event, context):
     )
 
 
-# handler(event={"body": {"item1": "test"}}, context={})
+handler(event={"item1": "test"}, context={})

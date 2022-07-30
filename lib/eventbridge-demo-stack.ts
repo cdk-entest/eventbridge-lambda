@@ -9,9 +9,50 @@ import {
 import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 import * as path from "path";
+import * as fs from "fs";
 
 interface EventBridgeProps extends StackProps {
   topicArn: string;
+}
+
+interface LambdaServiceProps {
+  functionName: string;
+  functionCode: string;
+  topicArn?: string;
+}
+
+export class LambdaService extends Construct {
+  public readonly lambda: aws_lambda.Function;
+
+  constructor(scope: Construct, id: string, props: LambdaServiceProps) {
+    super(scope, id);
+
+    const func = new aws_lambda.Function(this, props.functionName, {
+      functionName: props.functionName,
+      code: aws_lambda.Code.fromInline(
+        fs.readFileSync(path.join(__dirname, props.functionCode), {
+          encoding: "utf-8",
+        })
+      ),
+      handler: "index.handler",
+      runtime: aws_lambda.Runtime.PYTHON_3_8,
+      timeout: Duration.seconds(10),
+      // provide a topic arn if want the consumer send sns
+      environment: {
+        TOPIC_ARN: props.topicArn ? props.topicArn : "",
+      },
+    });
+
+    func.addToRolePolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        resources: ["*"],
+        actions: ["sns:*"],
+      })
+    );
+
+    this.lambda = func;
+  }
 }
 
 export class EventbridgeDemoStack extends Stack {
@@ -21,10 +62,12 @@ export class EventbridgeDemoStack extends Stack {
     // producer lambda - putEvent iam role
     const producerLambda = new aws_lambda.Function(this, "ProducerLambda", {
       functionName: "ProducerLambda",
-      code: aws_lambda.Code.fromAsset(
-        path.join(__dirname, "./../lambdas/producer")
+      code: aws_lambda.Code.fromInline(
+        fs.readFileSync(path.join(__dirname, "./../lambdas/producer.py"), {
+          encoding: "utf-8",
+        })
       ),
-      handler: "producer.handler",
+      handler: "index.handler",
       runtime: aws_lambda.Runtime.PYTHON_3_8,
       timeout: Duration.seconds(10),
     });
@@ -37,37 +80,46 @@ export class EventbridgeDemoStack extends Stack {
       })
     );
 
-    // consumer lambda - event rule - target
-    const consumerLambda = new aws_lambda.Function(this, "ConsumerLambda", {
-      functionName: "ConsumerLambda",
-      code: aws_lambda.Code.fromAsset(
-        path.join(__dirname, "./../lambdas/consumer")
-      ),
-      handler: "consumer.handler",
-      runtime: aws_lambda.Runtime.PYTHON_3_8,
-      timeout: Duration.seconds(10),
-      // provide a topic arn if want the consumer send sns
-      environment: {
-        TOPIC_ARN: props ? props.topicArn : "",
-      },
+    // order consumer - event target rule
+    const processOrderLambda = new LambdaService(this, "ProcessOrderFunction", {
+      functionName: "ProcessOrderFunction",
+      functionCode: "./../lambdas/order.py",
+      topicArn: props ? props.topicArn : "",
     });
 
-    consumerLambda.addToRolePolicy(
-      new PolicyStatement({
-        effect: Effect.ALLOW,
-        resources: ["*"],
-        actions: ["sns:*"],
-      })
+    const orderRule = new aws_events.Rule(this, "TriggerProcessOrderLambda", {
+      ruleName: "TriggerProcessOrderLambda",
+      description: "",
+      eventPattern: { source: ["io.entest.demo"], detailType: ["order"] },
+    });
+
+    orderRule.addTarget(
+      new aws_events_targets.LambdaFunction(processOrderLambda.lambda)
     );
 
-    const consumerRule = new aws_events.Rule(this, "LambdaConsumerRule", {
-      ruleName: "TriggerLambdaConsumer",
-      description: "",
-      eventPattern: { source: ["io.entest.demo"] },
-    });
+    // purchase consumer - event target rule
+    const processPurchaseLambda = new LambdaService(
+      this,
+      "ProcessPurchaseLambda",
+      {
+        functionName: "ProcessPurchaseLambda",
+        functionCode: "./../lambdas/purchase.py",
+        topicArn: props ? props.topicArn : "",
+      }
+    );
 
-    consumerRule.addTarget(
-      new aws_events_targets.LambdaFunction(consumerLambda)
+    const purchaseRule = new aws_events.Rule(
+      this,
+      "TriggerProcessPurchaseLambda",
+      {
+        ruleName: "TriggerProcessPurchaseLambda",
+        description: "",
+        eventPattern: { source: ["io.entest.demo"], detailType: ["purchase"] },
+      }
+    );
+
+    purchaseRule.addTarget(
+      new aws_events_targets.LambdaFunction(processPurchaseLambda.lambda)
     );
   }
 }
