@@ -9,7 +9,7 @@
 
 
 ## Event Format 
-send/put an [event format](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-events.html) in python. Detail should be a JSON object, that's why json.dumps({}), or JSON.stringfy in javascript. 
+send/put an [event format](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-events.html) in python. Detail should be a JSON object, that's why json.dumps here, or JSON.stringfy in javascript. 
 ```py
 resp = eventClient.put_events(
         Entries=[
@@ -32,17 +32,33 @@ resp = eventClient.put_events(
 
 ```
 
-
-a event rule with below event pattern will map all events from io.entests.demo to the consumer lambda.
+event rule to map purchase-event to process purchase lambda 
 ```tsx
-const consumerRule = new aws_events.Rule(this, "LambdaConsumerRule", {
-      ruleName: "TriggerLambdaConsumer",
+const purchaseRule = new aws_events.Rule(
+      this,
+      "TriggerProcessPurchaseLambda",
+      {
+        ruleName: "TriggerProcessPurchaseLambda",
+        description: "",
+        eventPattern: { source: ["io.entest.demo"], detailType: ["purchase"] },
+      }
+    );
+
+    purchaseRule.addTarget(
+      new aws_events_targets.LambdaFunction(processPurchaseLambda.lambda)
+    );
+```
+
+event rule to map order-event to process order lambda 
+```tsx
+const orderRule = new aws_events.Rule(this, "TriggerProcessOrderLambda", {
+      ruleName: "TriggerProcessOrderLambda",
       description: "",
-      eventPattern: { source: ["io.entest.demo"] },
+      eventPattern: { source: ["io.entest.demo"], detailType: ["order"] },  
     });
 
-    consumerRule.addTarget(
-      new aws_events_targets.LambdaFunction(consumerLambda)
+    orderRule.addTarget(
+      new aws_events_targets.LambdaFunction(processOrderLambda.lambda)
     );
 ```
 
@@ -85,12 +101,18 @@ create lambda producer
     );
 ```
 
-create lambda consumer
+create lambda based service: purchase and order. topic arn is optional when you want the lambda to send notification to emails. 
 ```tsx
-const consumerLambda = new aws_lambda.Function(this, "ConsumerLambda", {
-      functionName: "ConsumerLambda",
+export class LambdaService extends Construct {
+  public readonly lambda: aws_lambda.Function;
+
+  constructor(scope: Construct, id: string, props: LambdaServiceProps) {
+    super(scope, id);
+
+    const func = new aws_lambda.Function(this, props.functionName, {
+      functionName: props.functionName,
       code: aws_lambda.Code.fromInline(
-        fs.readFileSync(path.join(__dirname, "./../lambdas/consumer.py"), {
+        fs.readFileSync(path.join(__dirname, props.functionCode), {
           encoding: "utf-8",
         })
       ),
@@ -99,17 +121,21 @@ const consumerLambda = new aws_lambda.Function(this, "ConsumerLambda", {
       timeout: Duration.seconds(10),
       // provide a topic arn if want the consumer send sns
       environment: {
-        TOPIC_ARN: props ? props.topicArn : "",
+        TOPIC_ARN: props.topicArn ? props.topicArn : "",
       },
     });
 
-    consumerLambda.addToRolePolicy(
+    func.addToRolePolicy(
       new PolicyStatement({
         effect: Effect.ALLOW,
         resources: ["*"],
         actions: ["sns:*"],
       })
     );
+
+    this.lambda = func;
+  }
+}
 ```
 
 the event pattern in the event rule maps the event source to target. All patterns in side the pattern should be matched. 
