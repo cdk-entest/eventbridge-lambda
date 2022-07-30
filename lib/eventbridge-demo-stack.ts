@@ -15,46 +15,6 @@ interface EventBridgeProps extends StackProps {
   topicArn: string;
 }
 
-interface LambdaServiceProps {
-  functionName: string;
-  functionCode: string;
-  topicArn?: string;
-}
-
-export class LambdaService extends Construct {
-  public readonly lambda: aws_lambda.Function;
-
-  constructor(scope: Construct, id: string, props: LambdaServiceProps) {
-    super(scope, id);
-
-    const func = new aws_lambda.Function(this, props.functionName, {
-      functionName: props.functionName,
-      code: aws_lambda.Code.fromInline(
-        fs.readFileSync(path.join(__dirname, props.functionCode), {
-          encoding: "utf-8",
-        })
-      ),
-      handler: "index.handler",
-      runtime: aws_lambda.Runtime.PYTHON_3_8,
-      timeout: Duration.seconds(10),
-      // provide a topic arn if want the consumer send sns
-      environment: {
-        TOPIC_ARN: props.topicArn ? props.topicArn : "",
-      },
-    });
-
-    func.addToRolePolicy(
-      new PolicyStatement({
-        effect: Effect.ALLOW,
-        resources: ["*"],
-        actions: ["sns:*"],
-      })
-    );
-
-    this.lambda = func;
-  }
-}
-
 export class EventbridgeDemoStack extends Stack {
   constructor(scope: Construct, id: string, props?: EventBridgeProps) {
     super(scope, id, props);
@@ -121,5 +81,45 @@ export class EventbridgeDemoStack extends Stack {
     purchaseRule.addTarget(
       new aws_events_targets.LambdaFunction(processPurchaseLambda.lambda)
     );
+  }
+}
+
+interface LambdaServiceProps {
+  functionName: string;
+  functionCode: string;
+  topicArn?: string;
+}
+
+export class LambdaService extends Construct {
+  public readonly lambda: aws_lambda.Function;
+
+  constructor(scope: Construct, id: string, props: LambdaServiceProps) {
+    super(scope, id);
+
+    const func = new aws_lambda.Function(this, props.functionName, {
+      functionName: props.functionName,
+      code: aws_lambda.Code.fromInline(
+        fs.readFileSync(path.join(__dirname, props.functionCode), {
+          encoding: "utf-8",
+        })
+      ),
+      handler: "index.handler",
+      runtime: aws_lambda.Runtime.PYTHON_3_8,
+      timeout: Duration.seconds(10),
+      // provide a topic arn if want the consumer send sns
+      environment: {
+        TOPIC_ARN: props.topicArn ? props.topicArn : "",
+      },
+    });
+
+    func.addToRolePolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        resources: ["*"],
+        actions: ["sns:*"],
+      })
+    );
+
+    this.lambda = func;
   }
 }
