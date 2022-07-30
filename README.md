@@ -4,10 +4,8 @@
   - The event rule map the events to targets (the lamda consumer)
   - [EventPattern](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-patterns.html) specify how to match events to targets
   - [GitHub](https://github.com/entest-hai/eventbridge-lambda)
-  
-  
- ![aws_devops-eventbridge drawio(2)](https://user-images.githubusercontent.com/20411077/181878378-fe5c6f7a-cbee-416a-9026-7796b9c9021f.png)
-
+    
+![aws_devops-eventbridge drawio(3)](https://user-images.githubusercontent.com/20411077/181879328-c12698cb-b084-43dc-a26b-d4e92431f74d.png)
 
 ## Event Format 
 send/put an [event format](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-events.html) by python boto3. Detail field should be a JSON object, that's why json.dumps here, or JSON.stringfy in javascript. 
