@@ -9,7 +9,7 @@
 
 
 ## Event Format 
-send/put an [event format](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-events.html) in python. Detail should be a JSON object, that's why json.dumps here, or JSON.stringfy in javascript. 
+send/put an [event format](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-events.html) by python boto3. Detail field should be a JSON object, that's why json.dumps here, or JSON.stringfy in javascript. 
 ```py
 resp = eventClient.put_events(
   Entries=[
@@ -18,13 +18,6 @@ resp = eventClient.put_events(
       'Source': 'io.entest.demo',
       'Detail': json.dumps({"title": "order event"}),
       'DetailType': 'order',
-      'Resources':['arn:aws:lambda...']
-    },
-    {
-      'Time': datetime.now(),
-      'Source': 'io.entest.demo',
-      'Detail': json.dumps({"title": "purchase event"}),
-      'DetailType': 'purchase',
       'Resources':['arn:aws:lambda...']
     }
   ]
