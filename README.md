@@ -80,7 +80,7 @@ create lambda producer
     );
 ```
 
-create a lambda based construct for purchase and order services. topic arn is optional when you want the lambda to send notification to emails. 
+create a lambda based construct for purchase and order services. 
 ```tsx
 export class LambdaService extends Construct {
   public readonly lambda: aws_lambda.Function;
