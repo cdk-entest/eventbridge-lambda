@@ -1,11 +1,11 @@
 ## EventBridge with Lambda Producer and Consumer 
-  - Using the default event bus 
-  - A lambda procuder sends message to the evnet bus 
+  - A lambda procuder sends events to the evnet bus 
   - A lambda consumer being trigger by the event rule 
-
+  - The event rule map the events to targets (the lamda consumer)
+  - [EventPattern](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-patterns.html) specify how to match events to targets 
 
 ## CDK Stack 
-create lambda procuder 
+create lambda producer  
 ```tsx
     const producerLambda = new aws_lambda.Function(this, "ProducerLambda", {
       functionName: "ProducerLambda",
