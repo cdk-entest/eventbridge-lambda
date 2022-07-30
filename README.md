@@ -24,7 +24,7 @@ resp = eventClient.put_events(
 )
 ```
 
-event rule uses [event pattern]((https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-patterns.html) ) to map purchase-event to process purchase lambda 
+event rule uses [eventPattern](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-patterns.html) to map purchase-event to process purchase lambda 
 ```tsx
 const purchaseRule = new aws_events.Rule(
       this,
