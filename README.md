@@ -117,16 +117,32 @@ export class LambdaService extends Construct {
 }
 ```
 
-the event pattern in the event rule maps the event source to target. All patterns in side the pattern should be matched. 
+event rule map purchase-events to process purchase lambda 
 ```tsx
-const consumerRule = new aws_events.Rule(this, "LambdaConsumerRule", {
-      ruleName: "TriggerLambdaConsumer",
+const purchaseRule = new aws_events.Rule(
+      this,
+      "TriggerProcessPurchaseLambda",
+      {
+        ruleName: "TriggerProcessPurchaseLambda",
+        description: "",
+        eventPattern: { source: ["io.entest.demo"], detailType: ["purchase"] },
+      }
+    );
+
+    purchaseRule.addTarget(
+      new aws_events_targets.LambdaFunction(processPurchaseLambda.lambda)
+    );
+```
+event rule map order-lambda to process order lambda  
+```tsx
+const orderRule = new aws_events.Rule(this, "TriggerProcessOrderLambda", {
+      ruleName: "TriggerProcessOrderLambda",
       description: "",
-      eventPattern: { source: ["io.entest.demo"] },
+      eventPattern: { source: ["io.entest.demo"], detailType: ["order"] },
     });
 
-    consumerRule.addTarget(
-      new aws_events_targets.LambdaFunction(consumerLambda)
+    orderRule.addTarget(
+      new aws_events_targets.LambdaFunction(processOrderLambda.lambda)
     );
 ```
 
