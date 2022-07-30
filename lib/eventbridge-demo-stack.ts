@@ -47,6 +47,7 @@ export class EventbridgeDemoStack extends Stack {
       topicArn: props ? props.topicArn : "",
     });
 
+    // map order event to process order lambda
     const orderRule = new aws_events.Rule(this, "TriggerProcessOrderLambda", {
       ruleName: "TriggerProcessOrderLambda",
       description: "",
@@ -68,6 +69,7 @@ export class EventbridgeDemoStack extends Stack {
       }
     );
 
+    // map purchase event to processing purchase lambda
     const purchaseRule = new aws_events.Rule(
       this,
       "TriggerProcessPurchaseLambda",
