@@ -13,7 +13,7 @@ resp = eventClient.put_events(
                 'Source': 'io.entest.demo',
                 'Detail': json.dumps(request_body),
                 'DetailType': 'service_status',
-                'Resources':['arn:aws:lambda:$REGION:$ACCOUNT_ID:function:$FUNCTION_NAME']
+                'Resources':['arn:aws:lambda...']
             }
         ]
     )
@@ -30,7 +30,7 @@ received event format in python
   "account": "ACCOUNT_ID", 
   "time": "2022-07-30T03:22:23Z", 
   "region": "REGION", 
-  "resources": ['arn:aws:lambda:$REGION:$ACCOUNT_ID:function:$FUNCTION_NAME'], 
+  "resources": ['arn:aws:lambda...'], 
   "detail": {"item1": "123", "item2": "456"}
   }
 ```
