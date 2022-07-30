@@ -11,7 +11,7 @@ resp = eventClient.put_events(
             {
                 'Time': datetime.now(),
                 'Source': 'io.entest.demo',
-                'Detail': json.dumps(request_body),
+                'Detail': json.dumps({"item1": "123", "item2": "456"}),
                 'DetailType': 'service_status',
                 'Resources':['arn:aws:lambda...']
             }
