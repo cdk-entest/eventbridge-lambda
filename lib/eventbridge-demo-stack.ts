@@ -1,16 +1,72 @@
-import { Stack, StackProps } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
+import {
+  aws_events,
+  aws_events_targets,
+  aws_lambda,
+  Duration,
+  Stack,
+  StackProps,
+} from "aws-cdk-lib";
+import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
+import { Construct } from "constructs";
+import * as path from "path";
+
+interface EventBridgeProps extends StackProps {
+  topicArn: string;
+}
 
 export class EventbridgeDemoStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
+  constructor(scope: Construct, id: string, props: EventBridgeProps) {
     super(scope, id, props);
 
-    // The code that defines your stack goes here
+    // producer lambda - putEvent iam role
+    const producerLambda = new aws_lambda.Function(this, "ProducerLambda", {
+      functionName: "ProducerLambda",
+      code: aws_lambda.Code.fromAsset(
+        path.join(__dirname, "./../lambdas/producer")
+      ),
+      handler: "producer.handler",
+      runtime: aws_lambda.Runtime.PYTHON_3_8,
+      timeout: Duration.seconds(10),
+    });
 
-    // example resource
-    // const queue = new sqs.Queue(this, 'EventbridgeDemoQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
-    // });
+    producerLambda.addToRolePolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        resources: ["*"],
+        actions: ["events:PutEvents"],
+      })
+    );
+
+    // consumer lambda - event rule - target
+    const consumerLambda = new aws_lambda.Function(this, "ConsumerLambda", {
+      functionName: "ConsumerLambda",
+      code: aws_lambda.Code.fromAsset(
+        path.join(__dirname, "./../lambdas/consumer")
+      ),
+      handler: "consumer.handler",
+      runtime: aws_lambda.Runtime.PYTHON_3_8,
+      timeout: Duration.seconds(10),
+      environment: {
+        TOPIC_ARN: props.topicArn,
+      },
+    });
+
+    consumerLambda.addToRolePolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        resources: ["*"],
+        actions: ["sns:*"],
+      })
+    );
+
+    const consumerRule = new aws_events.Rule(this, "LambdaConsumerRule", {
+      ruleName: "TriggerLambdaConsumer",
+      description: "",
+      eventPattern: { source: ["io.entest.demo"] },
+    });
+
+    consumerRule.addTarget(
+      new aws_events_targets.LambdaFunction(consumerLambda)
+    );
   }
 }
