@@ -67,39 +67,7 @@ received event format in python
   }
 ```
 
-event sent from S3 to EventBridge has a format as [below](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ev-events.html) 
-```json
-{
-  "version": "0",
-  "id": "17793124-05d4-b198-2fde-7ededc63b103",
-  "detail-type": "Object Created",
-  "source": "aws.s3",
-  "account": "111122223333",
-  "time": "2021-11-12T00:00:00Z",
-  "region": "ca-central-1",
-  "resources": [
-    "arn:aws:s3:::DOC-EXAMPLE-BUCKET1"
-  ],
-  "detail": {
-    "version": "0",
-    "bucket": {
-      "name": "DOC-EXAMPLE-BUCKET1"
-    },
-    "object": {
-      "key": "example-key",
-      "size": 5,
-      "etag": "b1946ac92492d2347c6235b4d2611184",
-      "version-id": "IYV3p45BT0ac8hjHg1houSdS1a.Mro8e",
-      "sequencer": "617f08299329d189"
-    },
-    "request-id": "N4N7GDK58NMKJ12R",
-    "requester": "123456789012",
-    "source-ip-address": "1.2.3.4",
-    "reason": "PutObject"
-  }
-}  
-            
-```
+
 
 ## CDK Stack 
 create lambda producer  
@@ -251,9 +219,38 @@ def handler(event, context):
 ```
 
 ## S3 Event and Rule with S3 Prefix 
-event sent from S3 to eventbridge has below format 
+event sent from S3 to EventBridge has a format as [below](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ev-events.html) 
 ```json
-
+{
+  "version": "0",
+  "id": "17793124-05d4-b198-2fde-7ededc63b103",
+  "detail-type": "Object Created",
+  "source": "aws.s3",
+  "account": "111122223333",
+  "time": "2021-11-12T00:00:00Z",
+  "region": "ca-central-1",
+  "resources": [
+    "arn:aws:s3:::DOC-EXAMPLE-BUCKET1"
+  ],
+  "detail": {
+    "version": "0",
+    "bucket": {
+      "name": "DOC-EXAMPLE-BUCKET1"
+    },
+    "object": {
+      "key": "example-key",
+      "size": 5,
+      "etag": "b1946ac92492d2347c6235b4d2611184",
+      "version-id": "IYV3p45BT0ac8hjHg1houSdS1a.Mro8e",
+      "sequencer": "617f08299329d189"
+    },
+    "request-id": "N4N7GDK58NMKJ12R",
+    "requester": "123456789012",
+    "source-ip-address": "1.2.3.4",
+    "reason": "PutObject"
+  }
+}  
+            
 ```
 
 lookup an existed bucket 
