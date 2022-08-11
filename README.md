@@ -1,3 +1,12 @@
+---
+title: EventBridge with Lambda Producer and Consumer
+description: EventBridge with Lambda Producer and Consumer
+author: haimtran
+publishedDate: 07/30/2022
+date: 2022-07-30
+---
+
+
 ## EventBridge with Lambda Producer and Consumer 
   - A lambda procuder sends events to the event bus 
   - A lambda consumer being trigger by the event rule 
