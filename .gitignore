@@ -4,6 +4,7 @@
 jest.config.js 
 package-lock.json
 node_modules
+test
 
 # CDK asset staging directory
 .cdk.staging
