@@ -8,7 +8,10 @@ date: 2022-07-30
 
 ## Introduction
 
-This [GitHub](https://github.com/entest-hai/eventbridge-lambda) shows events format, how they are produced and consumed and how to create a rule and add targets. Part 1 uses lambdas to produce and consume my-own events, then part 2 creates a S3 rule with prefix.
+This [GitHub](https://github.com/entest-hai/eventbridge-lambda) shows events format, how they are produced and consumed and how to create a rule and add targets. 
+
+- Part 1 uses lambdas to produce and consume my-own events
+- Part 2 creates a S3 rule with prefix.
 
 ## Part 1. Producer and Consumer
 
