@@ -12,10 +12,10 @@ import * as path from "path";
 import * as fs from "fs";
 
 interface EventBridgeProps extends StackProps {
-  topicArn: string;
+  topicArn?: string;
 }
 
-export class EventbridgeDemoStack extends Stack {
+export class EventbridgeLambdaStack extends Stack {
   constructor(scope: Construct, id: string, props?: EventBridgeProps) {
     super(scope, id, props);
 
@@ -23,7 +23,7 @@ export class EventbridgeDemoStack extends Stack {
     const producerLambda = new aws_lambda.Function(this, "ProducerLambda", {
       functionName: "ProducerLambda",
       code: aws_lambda.Code.fromInline(
-        fs.readFileSync(path.join(__dirname, "./../lambdas/producer.py"), {
+        fs.readFileSync(path.join(__dirname, "./../lambda/producer.py"), {
           encoding: "utf-8",
         })
       ),
@@ -43,7 +43,7 @@ export class EventbridgeDemoStack extends Stack {
     // order consumer - event target rule
     const processOrderLambda = new LambdaService(this, "ProcessOrderFunction", {
       functionName: "ProcessOrderFunction",
-      functionCode: "./../lambdas/order.py",
+      functionCode: "./../lambda/order.py",
       topicArn: props ? props.topicArn : "",
     });
 
@@ -64,7 +64,7 @@ export class EventbridgeDemoStack extends Stack {
       "ProcessPurchaseLambda",
       {
         functionName: "ProcessPurchaseLambda",
-        functionCode: "./../lambdas/purchase.py",
+        functionCode: "./../lambda/purchase.py",
         topicArn: props ? props.topicArn : "",
       }
     );
