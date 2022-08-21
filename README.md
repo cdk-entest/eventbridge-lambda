@@ -228,6 +228,16 @@ def handler(event, context):
 ```
 
 ## Part 2. S3 Event Rule Prefix
+before the eventbridge we s3 emit events and invoke lambdas as 
+```tsx
+ bucket.addEventNotification(
+      cdk.aws_s3.EventType.OBJECT_CREATED,
+      new cdk.aws_s3_notifications.LambdaDestination(func),
+      {
+        prefix: "onevent/",
+      }
+    );
+```
 
 event sent from S3 to EventBridge has a format as [below](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ev-events.html)
 
@@ -264,19 +274,24 @@ event sent from S3 to EventBridge has a format as [below](https://docs.aws.amazo
 then we can a rule as
 
 ```tsx
-const eventRule = new aws_events.Rule(this, 'S3PutObjectTriggerLambdaRule', {
-  ruleName: 'S3PutObjectTriggerLambdaRule',
-  eventPattern: {
-    source: ['aws.s3'],
-    detailType: ['Object Created'],
-    detail: {
-      name: [props.bucketName],
-      object: {
-        key: [{ prefix: 'eventbridge-demo/' }]
-      }
-    }
-  }
-})
+const rule = new cdk.aws_events.Rule(this, "S3EventTriggerLambdaRule", {
+      ruleName: "S3EventTriggerLambdaRule",
+      eventPattern: {
+        // source
+        source: ["aws.s3"],
+
+        // match filter
+        detailType: ["Object Created"],
+        detail: {
+          bucket: {
+            name: [bucket.bucketName],
+          },
+          object: {
+            key: [{ prefix: "onrule/" }],
+          },
+        },
+      },
+    });
 ```
 
 lookup an existed bucket
@@ -318,5 +333,9 @@ eventRule.addTarget(new aws_events_targets.LambdaFunction(func))
 not forget to grant lambda to read s3
 
 ```tsx
-bucket.grantRead(func)
+table.grantReadWriteData(func);
+bucket.grantReadWrite(func);
+bucket.grantReadWrite(testLambda);
 ```
+
+Note to use a lambda in the same region to put objects into the S3 bucket for testing purpose. It might not working if upload objects from a differnt retion. 
