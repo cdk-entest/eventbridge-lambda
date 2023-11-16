@@ -1,0 +1,605 @@
+{
+ "Resources": {
+  "ProducerLambdaServiceRole37E53FC3": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EventBridgeLambda/ProducerLambda/ServiceRole/Resource"
+   }
+  },
+  "ProducerLambdaServiceRoleDefaultPolicy8D34AFD0": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "events:PutEvents",
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "ProducerLambdaServiceRoleDefaultPolicy8D34AFD0",
+    "Roles": [
+     {
+      "Ref": "ProducerLambdaServiceRole37E53FC3"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EventBridgeLambda/ProducerLambda/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "ProducerLambdaC55AC1D4": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "ZipFile": "\"\"\"\nhaimtran 29 JUL 2022\nsend events to eventbridge using boto3\n\"\"\"\nfrom datetime import datetime\nimport json\nimport boto3\n\n\neventClient = boto3.client('events')\n\n\ndef handler(event, context):\n    \"\"\"\n    send three entries to enventbridge\n    \"\"\"\n    resp = eventClient.put_events(\n        Entries=[\n            {\n                'Time': datetime.now(),\n                'Source': 'io.entest.demo',\n                'Detail': json.dumps({'title': 'order event', 'event': event}),\n                'DetailType': 'order',\n            },\n            {\n                'Time': datetime.now(),\n                'Source': 'io.entest.demo',\n                'Detail': json.dumps({'title': 'purchase event', 'event': event}),\n                'DetailType': 'purchase',\n            }\n        ]\n    )\n    print(resp)\n    return (\n        {\n            'message': 'procuder'\n        }\n    )\n\n\nhandler(event={\"item1\": \"test\"}, context={})\n"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "ProducerLambdaServiceRole37E53FC3",
+      "Arn"
+     ]
+    },
+    "FunctionName": "ProducerLambda",
+    "Handler": "index.handler",
+    "Runtime": "python3.8",
+    "Timeout": 10
+   },
+   "DependsOn": [
+    "ProducerLambdaServiceRoleDefaultPolicy8D34AFD0",
+    "ProducerLambdaServiceRole37E53FC3"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "EventBridgeLambda/ProducerLambda/Resource"
+   }
+  },
+  "ProcessOrderFunctionServiceRole56E27175": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EventBridgeLambda/ProcessOrderFunction/ProcessOrderFunction/ServiceRole/Resource"
+   }
+  },
+  "ProcessOrderFunctionServiceRoleDefaultPolicy78EE3DB0": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sns:*",
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "ProcessOrderFunctionServiceRoleDefaultPolicy78EE3DB0",
+    "Roles": [
+     {
+      "Ref": "ProcessOrderFunctionServiceRole56E27175"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EventBridgeLambda/ProcessOrderFunction/ProcessOrderFunction/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "ProcessOrderFunction020C3A48": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "ZipFile": "\"\"\"\nhaimtran 29 JUL 2022\nconsum events from eventbridge via rule trigger\n\"\"\"\nimport os\nimport json\nimport boto3\n\nsnsClient = boto3.client('sns')\n\n\ndef handler(event, context):\n    \"\"\"\n    consume event and send sns\n    \"\"\"\n    # if an sns topic arn avaiable\n    if (os.environ['TOPIC_ARN'] != ''):\n        snsClient.publish(\n            TopicArn=os.environ['TOPIC_ARN'],\n            Message=json.dumps({'type': 'order', 'event': event})\n        )\n    else:\n        pass\n    return {\n        'message': event\n    }\n\n# handler(event={}, context={})\n"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "ProcessOrderFunctionServiceRole56E27175",
+      "Arn"
+     ]
+    },
+    "Environment": {
+     "Variables": {
+      "TOPIC_ARN": "arn:aws:sns:ap-southeast-1:874056087589:Hello"
+     }
+    },
+    "FunctionName": "ProcessOrderFunction",
+    "Handler": "index.handler",
+    "Runtime": "python3.8",
+    "Timeout": 10
+   },
+   "DependsOn": [
+    "ProcessOrderFunctionServiceRoleDefaultPolicy78EE3DB0",
+    "ProcessOrderFunctionServiceRole56E27175"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "EventBridgeLambda/ProcessOrderFunction/ProcessOrderFunction/Resource"
+   }
+  },
+  "TriggerProcessOrderLambda296328FC": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "",
+    "EventPattern": {
+     "source": [
+      "io.entest.demo"
+     ],
+     "detail-type": [
+      "order"
+     ]
+    },
+    "Name": "TriggerProcessOrderLambda",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "ProcessOrderFunction020C3A48",
+        "Arn"
+       ]
+      },
+      "Id": "Target0"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EventBridgeLambda/TriggerProcessOrderLambda/Resource"
+   }
+  },
+  "TriggerProcessOrderLambdaAllowEventRuleEventBridgeLambdaProcessOrderFunction429CCBD2D975651D": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "ProcessOrderFunction020C3A48",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "TriggerProcessOrderLambda296328FC",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EventBridgeLambda/TriggerProcessOrderLambda/AllowEventRuleEventBridgeLambdaProcessOrderFunction429CCBD2"
+   }
+  },
+  "ProcessPurchaseLambdaServiceRole4E54AAC1": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EventBridgeLambda/ProcessPurchaseLambda/ProcessPurchaseLambda/ServiceRole/Resource"
+   }
+  },
+  "ProcessPurchaseLambdaServiceRoleDefaultPolicy46A6F75C": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sns:*",
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "ProcessPurchaseLambdaServiceRoleDefaultPolicy46A6F75C",
+    "Roles": [
+     {
+      "Ref": "ProcessPurchaseLambdaServiceRole4E54AAC1"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EventBridgeLambda/ProcessPurchaseLambda/ProcessPurchaseLambda/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "ProcessPurchaseLambda6927CBCB": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "ZipFile": "\"\"\"\nhaimtran 29 JUL 2022\nconsum events from eventbridge via rule trigger\n\"\"\"\nimport os\nimport json\nimport boto3\n\nsnsClient = boto3.client('sns')\n\n\ndef handler(event, context):\n    \"\"\"\n    consume event and send sns\n    \"\"\"\n    # if an sns topic arn avaiable\n    if (os.environ['TOPIC_ARN'] != ''):\n        snsClient.publish(\n            TopicArn=os.environ['TOPIC_ARN'],\n            Message=json.dumps({'type': 'purchase', 'event': event})\n        )\n    else:\n        pass\n    return {\n        'message': event\n    }\n\n# handler(event={}, context={})\n"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "ProcessPurchaseLambdaServiceRole4E54AAC1",
+      "Arn"
+     ]
+    },
+    "Environment": {
+     "Variables": {
+      "TOPIC_ARN": "arn:aws:sns:ap-southeast-1:874056087589:Hello"
+     }
+    },
+    "FunctionName": "ProcessPurchaseLambda",
+    "Handler": "index.handler",
+    "Runtime": "python3.8",
+    "Timeout": 10
+   },
+   "DependsOn": [
+    "ProcessPurchaseLambdaServiceRoleDefaultPolicy46A6F75C",
+    "ProcessPurchaseLambdaServiceRole4E54AAC1"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "EventBridgeLambda/ProcessPurchaseLambda/ProcessPurchaseLambda/Resource"
+   }
+  },
+  "TriggerProcessPurchaseLambdaA9DFD04F": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "",
+    "EventPattern": {
+     "source": [
+      "io.entest.demo"
+     ],
+     "detail-type": [
+      "purchase"
+     ]
+    },
+    "Name": "TriggerProcessPurchaseLambda",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "ProcessPurchaseLambda6927CBCB",
+        "Arn"
+       ]
+      },
+      "Id": "Target0"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EventBridgeLambda/TriggerProcessPurchaseLambda/Resource"
+   }
+  },
+  "TriggerProcessPurchaseLambdaAllowEventRuleEventBridgeLambdaProcessPurchaseLambda2F66A28B157490D6": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "ProcessPurchaseLambda6927CBCB",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "TriggerProcessPurchaseLambdaA9DFD04F",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EventBridgeLambda/TriggerProcessPurchaseLambda/AllowEventRuleEventBridgeLambdaProcessPurchaseLambda2F66A28B"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/02MywrCMBBFv6X7dCQVxL3gutQPkDQZYdo8oJNUJOTfjdGFq3vm3sMMcJQwdOrJvTZrb2mGfItKr6JW92yVm42CfE1eRwpeXB7+n0fcHDHXqwhSDvIULH6GlmOwpF/Na1QE7ugjVy39tJqlNEIOadOtvQRvKLanPhiEhQ+7PIM8gewWJuq35CM5hOmbb5EAGZHFAAAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "EventBridgeLambda/CDKMetadata/Default"
+   },
+   "Condition": "CDKMetadataAvailable"
+  }
+ },
+ "Conditions": {
+  "CDKMetadataAvailable": {
+   "Fn::Or": [
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "af-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-northeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ap-southeast-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "ca-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "cn-northwest-1"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-central-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-north-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-2"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "eu-west-3"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "me-south-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "sa-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-east-2"
+       ]
+      }
+     ]
+    },
+    {
+     "Fn::Or": [
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-west-1"
+       ]
+      },
+      {
+       "Fn::Equals": [
+        {
+         "Ref": "AWS::Region"
+        },
+        "us-west-2"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}
