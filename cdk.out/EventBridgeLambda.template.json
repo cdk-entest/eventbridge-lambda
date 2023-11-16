@@ -155,7 +155,7 @@
     },
     "Environment": {
      "Variables": {
-      "TOPIC_ARN": "arn:aws:sns:ap-southeast-1:874056087589:Hello"
+      "TOPIC_ARN": ""
      }
     },
     "FunctionName": "ProcessOrderFunction",
@@ -295,7 +295,7 @@
     },
     "Environment": {
      "Variables": {
-      "TOPIC_ARN": "arn:aws:sns:ap-southeast-1:874056087589:Hello"
+      "TOPIC_ARN": ""
      }
     },
     "FunctionName": "ProcessPurchaseLambda",
