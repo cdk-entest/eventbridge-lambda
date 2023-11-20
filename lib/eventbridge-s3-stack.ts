@@ -1,15 +1,11 @@
 import { Construct } from "constructs";
-import {
-  RemovalPolicy,
-  Stack,
-  StackProps
-} from "aws-cdk-lib";
-import * as aws_s3_notifications from 'aws-cdk-lib/aws-s3-notifications'
-import * as aws_lambda from "aws-cdk-lib/aws-lambda"
-import * as aws_events_targets from"aws-cdk-lib/aws-events-targets
-import * as aws_events from "aws-cdk-lib/aws-events"
-import * as aws_dynamodb from "aws-cdk-lib/aws-dynamodb"
-import * as aws_s3 from "aws-cdk-lib/aws-s3"
+import { RemovalPolicy, Stack, StackProps } from "aws-cdk-lib";
+import * as aws_s3_notifications from "aws-cdk-lib/aws-s3-notifications";
+import * as aws_lambda from "aws-cdk-lib/aws-lambda";
+import * as aws_events_targets from "aws-cdk-lib/aws-events-targets";
+import * as aws_events from "aws-cdk-lib/aws-events";
+import * as aws_dynamodb from "aws-cdk-lib/aws-dynamodb";
+import * as aws_s3 from "aws-cdk-lib/aws-s3";
 import * as path from "path";
 import * as fs from "fs";
 
