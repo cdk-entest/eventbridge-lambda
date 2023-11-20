@@ -1,13 +1,10 @@
-import {
-  aws_events,
-  aws_events_targets,
-  aws_lambda,
-  Duration,
-  Stack,
-  StackProps,
-} from "aws-cdk-lib";
-import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
+import { Duration, Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
+
+import * as aws_iam from "aws-cdk-lib/aws-iam";
+import * as aws_events_targets from "aws-cdk-lib/aws-events-targets";
+import * as aws_events from "aws-cdk-lib/aws-events";
+import * as aws_lambda from "aws-cdk-lib/aws-lambda";
 import * as path from "path";
 import * as fs from "fs";
 
@@ -33,8 +30,8 @@ export class EventbridgeLambdaStack extends Stack {
     });
 
     producerLambda.addToRolePolicy(
-      new PolicyStatement({
-        effect: Effect.ALLOW,
+      new aws_iam.PolicyStatement({
+        effect: aws_iam.Effect.ALLOW,
         resources: ["*"],
         actions: ["events:PutEvents"],
       })
@@ -115,8 +112,8 @@ export class LambdaService extends Construct {
     });
 
     func.addToRolePolicy(
-      new PolicyStatement({
-        effect: Effect.ALLOW,
+      new aws_iam.PolicyStatement({
+        effect: aws_iam.Effect.ALLOW,
         resources: ["*"],
         actions: ["sns:*"],
       })
